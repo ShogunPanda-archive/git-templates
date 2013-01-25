@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 #encoding: utf-8
 
+require "rubygems"
 require "lazier"
 require "mustache"
+require "fileutils"
+require "find"
+require "pathname"
 
 DEFAULT_CONFIGURATION = {
   :name => File.basename(Dir.pwd),
@@ -37,31 +41,80 @@ def get_configuration(file)
   rv
 end
 
-task :default => [:setup]
+def download_template(template, basename)
+  puts "Downloading https://github.com/ShogunPanda/git-templates/archive/#{template}.zip ..."
+  download = system("curl -L -s -o #{basename}.zip https://github.com/ShogunPanda/git-templates/archive/#{template}.zip")
+  raise ArgumentError.new("Invalid template specified.") if !download
+end
 
-task :setup, [:template, :configuration] do |task, args|
-  template = args[:template]
-  configuration = args[:configuration]
+def extract_template(template, basename)  
+  puts "Extracting template ..."
+  begin
+    raise ArgumentError if !system("unzip -q #{basename}.zip -d #{basename}") 
+    files = Dir.glob("#{basename}/git-templates-#{template}/{*,.*}").reject {|f| [".", ".."].include?(File.basename(f)) }
+    FileUtils.mv(files, ".", :force => true)
+    FileUtils.rm_rf(basename)
+    FileUtils.rm(basename + ".zip")
+  rescue => e
+    p e.to_s
+    p e.class.to_s
+    raise ArgumentError.new("Cannot download or unzip template.")
+  end
+end
 
-  # Handle template
+def rename_contents(configuration)
+  puts "Renaming contents ..."
+  entries = []
+  root = Pathname.new(Dir.pwd)
+  
+  rename = Proc.new { |src|
+    dst = src.gsub(/__(.+?)__/) { configuration[$1.to_sym] }
+    if src != dst then
+      raise ArgumentError("Cannot move rename file #{File.absolute_path(file)}") if !FileUtils.mv(src, dst, :force => true) 
+    end
+  }
+
+  visit_directory = Proc.new {|current, skip_self|
+    owd = Dir.pwd
+    Dir.chdir(current)
+    Dir.glob("{*, .*}") do |entry|
+      next if [".", ".."].include?(entry)
+
+      if File.directory?(entry) then
+        visit_directory.call(entry)
+      else
+        rename.call(entry)
+      end
+    end
+
+    Dir.chdir(owd)
+    rename.call(current) if !skip_self
+  }
+
+  visit_directory.call(Dir.pwd, true)
+end
+
+def configure_contents(configuration)
+
+end
+
+def main
+  template = ARGV[0]
+  configuration = ARGV[1]
+  basename = "/tmp/git-templates-#{Time.now.strftime("%Y%m%d-%H%M%S")}"
   raise ArgumentError.new("You must specify a template.") if template.blank?
-
-  # Handle configuration
   configuration = get_configuration(configuration)
 
-  # Download repository
-  temp_file = "/tmp/git-template-#{Time.now.strftime("%Y%m%d-%H%M%S")}.zip"
-  download = system("curl -L -s -o #{temp_file} https://github.com/ShogunPanda/git-templates/archive/#{template}.zip")
-  raise ArgumentError.new("Invalid template specified") if !download
-  
-  # Unzip repository
-  system("unzip #{temp_file}")
-  files = Dir.glob("git-templates-#{template}/{*,.*}").reject {|f| [".", ".."].include?(File.basename(f)) }
-  FileUtils.mv(files, ".", :verbose => true)
-  FileUtils.rmdir("git-templates-#{template}")
-  FileUtils.rm(temp_file)
+  download_template(template, basename)
+  extract_template(template, basename)
+  rename_contents(configuration)
+  #configure_contents(configuration)
+end
 
-  # Rename files
-
-  # Render templates
+begin
+  main()
+rescue ArgumentError => e
+  puts "Template application failed. #{e.to_s}"
+else
+  puts "Template application completed."
 end
