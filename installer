@@ -24,7 +24,7 @@ def get_configuration(file)
     begin
       open(file, "r") {|f| rv = YAML.load(f.read).symbolize_keys }
     rescue => e
-      raise ArgumentError.new("You must specify a valid YAML configuration.")
+      raise Exception.new("You must specify a valid YAML configuration.")
     end
   else
     rv = {}
@@ -34,6 +34,7 @@ def get_configuration(file)
   rv.reverse_merge!(DEFAULT_CONFIGURATION)
 
   # Set dependent fields
+  rv[:env] = rv[:name].upcase if rv[:env].blank?
   rv[:module] = rv[:name].classify if rv[:module].blank?
   rv[:year] = Time.now.year if rv[:year].blank?
   rv[:description] = rv[:summary] if rv[:description].blank?
@@ -44,21 +45,19 @@ end
 def download_template(template, basename)
   puts "Downloading https://github.com/ShogunPanda/git-templates/archive/#{template}.zip ..."
   download = system("curl -L -s -o #{basename}.zip https://github.com/ShogunPanda/git-templates/archive/#{template}.zip")
-  raise ArgumentError.new("Invalid template specified.") if !download
+  raise Exception.new("Invalid template specified.") if !download
 end
 
 def extract_template(template, basename)  
   puts "Extracting template ..."
   begin
-    raise ArgumentError if !system("unzip -q #{basename}.zip -d #{basename}") 
+    raise Exception if !system("unzip -q #{basename}.zip -d #{basename}") 
     files = Dir.glob("#{basename}/git-templates-#{template}/{*,.*}").reject {|f| [".", ".."].include?(File.basename(f)) }
     FileUtils.mv(files, ".", :force => true)
     FileUtils.rm_rf(basename)
     FileUtils.rm(basename + ".zip")
   rescue => e
-    p e.to_s
-    p e.class.to_s
-    raise ArgumentError.new("Cannot download or unzip template.")
+    raise Exception.new("Cannot download or unzip template.")
   end
 end
 
@@ -70,13 +69,14 @@ def rename_contents(configuration)
   rename = Proc.new { |src|
     dst = src.gsub(/__(.+?)__/) { configuration[$1.to_sym] }
     if src != dst then
-      raise ArgumentError("Cannot move rename file #{File.absolute_path(file)}") if !FileUtils.mv(src, dst, :force => true) 
+      raise Exception("Cannot move rename file #{File.absolute_path(file)}") if !FileUtils.mv(src, dst, :force => true) 
     end
   }
 
   visit_directory = Proc.new {|current, skip_self|
     owd = Dir.pwd
     Dir.chdir(current)
+
     Dir.glob("{*, .*}") do |entry|
       next if [".", ".."].include?(entry)
 
@@ -95,25 +95,34 @@ def rename_contents(configuration)
 end
 
 def configure_contents(configuration)
+  Find.find(Dir.pwd) do |src|
+    next if File.directory?(src) || src !~ /(\.git-template)$/
 
+    begin
+      open(src.gsub(/(\.git-template)$/, ""), "w") { |dst| dst.write(Mustache.render(File.read(src), configuration)) }
+      FileUtils.rm(src)
+    rescue
+      raise Exception.new("Cannot configure file #{src}")
+    end
+  end
 end
 
 def main
   template = ARGV[0]
   configuration = ARGV[1]
   basename = "/tmp/git-templates-#{Time.now.strftime("%Y%m%d-%H%M%S")}"
-  raise ArgumentError.new("You must specify a template.") if template.blank?
+  raise Exception.new("You must specify a template.") if template.blank?
   configuration = get_configuration(configuration)
 
   download_template(template, basename)
   extract_template(template, basename)
   rename_contents(configuration)
-  #configure_contents(configuration)
+  configure_contents(configuration)
 end
 
 begin
   main()
-rescue ArgumentError => e
+rescue Exception => e
   puts "Template application failed. #{e.to_s}"
 else
   puts "Template application completed."

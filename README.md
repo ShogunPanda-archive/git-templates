@@ -8,7 +8,8 @@ rake ...
 
 ## Available variables:
 
-* `name`: The name of the project
+* `name`: The name of the project.
+* `env`: The name of a env namespace. Default is uppercased version of `name`.
 * `module`: The main module of the project. Default is camelized version of `name`.
 * `year` (*current_year*): The current year for copyright notices. Default is the current year.
 * `author`: Author of the project. Default is **Shogun**.
