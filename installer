@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+#encoding: utf-8
+
+require "lazier"
+require "mustache"
+
+DEFAULT_CONFIGURATION = {
+  :name => File.basename(Dir.pwd),
+  :author => "Shogun",
+  :author_email => "shogun_panda@me.com",
+  :github_user => "ShogunPanda",
+  :summary => ""
+}
+
+def get_configuration(file)
+  rv = {}
+
+  # Read the file
+  if file.present? then
+    begin
+      open(file, "r") {|f| rv = YAML.load(f.read).symbolize_keys }
+    rescue => e
+      raise ArgumentError.new("You must specify a valid YAML configuration.")
+    end
+  else
+    rv = {}
+  end
+
+  # Apply defaults
+  rv.reverse_merge!(DEFAULT_CONFIGURATION)
+
+  # Set dependent fields
+  rv[:module] = rv[:name].classify if rv[:module].blank?
+  rv[:year] = Time.now.year if rv[:year].blank?
+  rv[:description] = rv[:summary] if rv[:description].blank?
+
+  rv
+end
+
+task :default => [:setup]
+
+task :setup, [:template, :configuration] do |task, args|
+  template = args[:template]
+  configuration = args[:configuration]
+
+  # Handle template
+  raise ArgumentError.new("You must specify a template.") if template.blank?
+
+  # Handle configuration
+  configuration = get_configuration(configuration)
+
+  # Download repository
+  temp_file = "/tmp/git-template-#{Time.now.strftime("%Y%m%d-%H%M%S")}.zip"
+  download = system("curl -L -s -o #{temp_file} https://github.com/ShogunPanda/git-templates/archive/#{template}.zip")
+  raise ArgumentError.new("Invalid template specified") if !download
+  system("unzip #{temp_file}")
+  FileUtils.mv(Dir.glob("git-templates-#{template}/*"), ".", :verbose => true)
+  FileUtils.rmdir("git-templates-#{template}")
+  FileUtils.rm(temp_file)
+
+  # Rename files
+
+  # Render templates
+end
