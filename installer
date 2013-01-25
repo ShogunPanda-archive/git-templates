@@ -95,6 +95,8 @@ def rename_contents(configuration)
 end
 
 def configure_contents(configuration)
+  puts "Configuring files ..."
+  
   Find.find(Dir.pwd) do |src|
     next if File.directory?(src) || src !~ /(\.git-template)$/
 
