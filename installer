@@ -53,8 +53,11 @@ task :setup, [:template, :configuration] do |task, args|
   temp_file = "/tmp/git-template-#{Time.now.strftime("%Y%m%d-%H%M%S")}.zip"
   download = system("curl -L -s -o #{temp_file} https://github.com/ShogunPanda/git-templates/archive/#{template}.zip")
   raise ArgumentError.new("Invalid template specified") if !download
+  
+  # Unzip repository
   system("unzip #{temp_file}")
-  FileUtils.mv(Dir.glob("git-templates-#{template}/*"), ".", :verbose => true)
+  files = Dir.glob("git-templates-#{template}/{*,.*}").reject {|f| [".", ".."].include?(File.basename(f)) }
+  FileUtils.mv(files, ".", :verbose => true)
   FileUtils.rmdir("git-templates-#{template}")
   FileUtils.rm(temp_file)
 
