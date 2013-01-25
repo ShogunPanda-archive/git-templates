@@ -2,9 +2,13 @@
 
 GIT Templates for repositories
 
-# Usage
+## Preparation
 
-`curl -L http://cow.tc/git-template-setup | ruby [TEMPLATE] [[CONFIGURATION]]`
+`gem i lazier mustache`
+
+## Usage
+
+`curl -s -L http://cow.tc/git-template-setup | ruby - [TEMPLATE] [[CONFIGURATION]]`
 
 Where:
 
