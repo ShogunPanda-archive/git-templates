@@ -11,7 +11,7 @@ require "pathname"
 DEFAULT_CONFIGURATION = {
   :name => File.basename(Dir.pwd),
   :author => "Shogun",
-  :author_email => "shogun_panda@me.com",
+  :author_email => "shogun_panda@cowtech.it",
   :github_user => "ShogunPanda",
   :summary => ""
 }
