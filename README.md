@@ -8,7 +8,7 @@ GIT Templates for repositories
 
 ## Usage
 
-`curl -s -L http://cow.tc/git-template-setup | ruby - [TEMPLATE] [[CONFIGURATION]]`
+`curl -s -L http://r.cow.tc/git-template-setup | ruby - [TEMPLATE] [[CONFIGURATION]]`
 
 Where:
 
