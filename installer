@@ -128,7 +128,7 @@ module GitTemplates
 end
 
 begin
-  GitTemplates.Installer.new.perform
+  GitTemplates::Installer.new.perform
 rescue Exception => e
   puts "Template application failed. #{e.to_s}"
 else
