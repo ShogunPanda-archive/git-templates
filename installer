@@ -18,6 +18,8 @@ DEFAULT_CONFIGURATION = {
 
 module GitTemplates
   class Installer
+    TEMPLATE_MATCHER = /((\.git-template)|(\.gt))$/
+    
     def perform
       template = ARGV[0]
       configuration = ARGV[1]
@@ -114,10 +116,10 @@ module GitTemplates
         puts "Configuring files ..."
         
         Find.find(Dir.pwd) do |src|
-          next if File.directory?(src) || src !~ /((\.git-template)|(\.gt))$/
+          next if File.directory?(src) || src !~ TEMPLATE_MATCHER
 
           begin
-            open(src.gsub(/(\.git-template)$/, ""), "w") { |dst| dst.write(Mustache.render(File.read(src), configuration)) }
+            open(src.gsub(TEMPLATE_MATCHER, ""), "w") { |dst| dst.write(Mustache.render(File.read(src), configuration)) }
             FileUtils.rm(src)
           rescue
             raise Exception.new("Cannot configure file #{src}")
