@@ -24,3 +24,7 @@ Where:
   * `github_user`: GitHub username of the author. Default is **ShogunPanda**.
   * `summary`: Short description of the project.
   * `description`: Long description of the project. Defaults to `summary`.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ShogunPanda/git-templates/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
