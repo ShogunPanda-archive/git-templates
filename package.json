@@ -1,0 +1,28 @@
+{
+  "name": "git-templates",
+  "version": "2.0.0",
+  "description": "GIT Templates for repositories",
+  "main": "installer",
+  "files": [
+    "installer",
+    "templates",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "./node_modules/.bin/eslint installer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShogunPanda/git-templates"
+  },
+  "author": "Shogun <shogun@cowtech.it>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ShogunPanda/git-templates/issues"
+  },
+  "homepage": "https://sw.cowtech.it/git-templates",
+  "devDependencies": {
+    "eslint": "~2.4.0"
+  }
+}

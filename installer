@@ -1,0 +1,165 @@
+#!/usr/bin/env node
+
+"use strict";
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+const urlParser = require("url");
+
+const HTTP_STATUS_OK = 200;
+
+if(typeof String.prototype.titleize !== "function"){
+  String.prototype.titleize = function(){
+    return this.trim().replace(/[-_]/g, " ").replace(/(^|\s)(\w)/g, match => match.trim().toUpperCase());
+  };
+}
+
+// if(typeof String.prototype.underscore !== "function"){
+//   String.prototype.underscore = function(){
+//     return this.trim().replace(/([a-z\d])([A-Z]+)/g, "$1_$2").replace(/[-\s]+/g, "_").toLowerCase();
+//   };
+// }
+//
+// if(typeof String.prototype.pad !== "function"){
+//   String.prototype.pad = function(length = 1, filler = " "){
+//     if(length < 0)
+//       throw new RangeError("Invalid length.");
+//
+//     const padder = (length - this.length) / 2;
+//
+//     return padder < 0 ? this : filler.repeat(Math.floor(padder)) + this + filler.repeat(Math.ceil(padder));
+//   };
+// }
+//
+// if(typeof String.prototype.padLeft !== "function"){
+//   String.prototype.padLeft = function(length = 1, filler = " "){
+//     if(length < 0)
+//       throw new RangeError("Invalid length.");
+//
+//     return this.length >= length ? this : (this + filler.repeat(length)).slice(0, length);
+//   };
+// }
+//
+// if(typeof String.prototype.padRight !== "function"){
+//   String.prototype.padRight = function(length = 1, filler = " "){
+//     if(length < 0)
+//       throw new RangeError("Invalid length.");
+//
+//     return this.length >= length ? this : (filler.repeat(length) + this).slice(-length);
+//   };
+// }
+
+class GitTemplatesInstaller{
+  showConfiguration(){
+
+  }
+
+  perform(){
+
+  }
+
+  list(){
+    this._listTemplates(templates => {
+      console.log(`[ INFO] Valid templates are:\n${templates.map(p => `   * ${p}`).join("\n")}`);
+    });
+  }
+
+  run(){
+    this.configuration = GitTemplatesInstaller.defaultConfiguration;
+    this.template = null;
+    this.configFile = null;
+    this.listOnly = false;
+    this.dryRun = false;
+
+    // Parse the command line
+    process.argv.slice(2).forEach(arg => {
+      if(arg.match(/-[hu\?]|--help|--usage/)){
+        console.log(`node ${path.basename(process.argv[1])} [-l|--list] [-n|--dry-run] TEMPLATE [CONFIGURATION_FILE]`)
+        process.exit(0);
+      }
+
+      if(arg.match(/-l|--list/))
+        this.listOnly = true;
+      else if(arg.match(/-n|--dry-run/))
+        this.dryRun = true;
+      else if(!this.template)
+        this.template = arg;
+      else if(!this.configFile)
+        this.configFile = arg;
+    });
+
+    if(this.listOnly)
+      return this.list();
+
+    // Parse and sanitize the config file
+    if(!this.configFile)
+      this.configFile = "./.git-template.json";
+    this.configFile = path.resolve(this.configFile);
+
+    // Merge configuration
+    try{
+      Object.assign(this.configuration, require(this.configFile));
+    }catch(e){
+      console.error(`[WARN] Cannot load file ${this.configFile}, will continue with default configuration.`);
+    }
+
+    // The template is required
+    if(!this.template)
+      this._showError("Please provide the template. Run again with -h to have more informations.");
+
+    this.showConfiguration();
+    return this.perform();
+  }
+
+  _showError(error){
+    console.error(`[FATAL] ${error}`);
+    process.exit(-1);
+  }
+
+  _apiCall(url, callback){
+    const options = urlParser.parse(url);
+    options.headers = {"User-Agent": "git-templates/1.0.0"};
+
+    https
+      .get(options, (res) => {
+        let buffer = new Buffer(0);
+
+        res
+          .on("data", data => {
+            buffer = Buffer.concat([buffer, data]);
+          })
+          .on("end", () => {
+            callback(res.statusCode, res.headers, buffer.toString());
+          });
+      })
+      .on("error", e => {
+        this._showError(`Cannot list templates: ${e.message}`);
+      });
+  }
+
+  _listTemplates(callback){
+    this._apiCall(`https://api.github.com/repos/${GitTemplatesInstaller.repository}/git/trees/master`, (status, headers, body) => {
+      if(status !== HTTP_STATUS_OK)
+        this._showError(`Cannot list templates (HTTP ${status}): ${body.toString()}`);
+
+      callback(JSON.parse(body).tree.filter(p => p.type === "blob").map(p => p.path))
+    });
+  }
+}
+
+GitTemplatesInstaller.repository = "ShogunPanda/git-templates";
+
+GitTemplatesInstaller.defaultConfiguration = {
+  name: path.basename(process.cwd()),
+  namespace: path.basename(process.cwd()).titleize(),
+  env: path.basename(process.cwd()).toUpperCase().replace("-", "_"),
+  year: new Date().getFullYear(),
+  author: "Shogun",
+  authorEmail: "shogun@cowtech.it",
+  githubUser: "ShogunPanda",
+  summary: "",
+  description: null
+};
+
+const main = new GitTemplatesInstaller();
+main.run();
