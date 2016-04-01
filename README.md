@@ -1,9 +1,10 @@
 # git-templates
 
-GIT Templates for repositories
+GIT Templates for repositories.
 
 ## Usage
 
+To run the utility, [Node.js](https://nodejs.org) version 5 or above is required. (no additional packages required).
 ```
 curl -s -L http://r.cowtech.it/git-template-setup | node - [TEMPLATE] [CONFIGURATION]
 ```
