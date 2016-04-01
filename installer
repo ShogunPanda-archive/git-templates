@@ -51,16 +51,41 @@ if(typeof String.prototype.titleize !== "function"){
 
 class GitTemplatesInstaller{
   showConfiguration(){
+    console.log(`[ INFO] Using the following configuration:`);
 
+    Object.keys(this.configuration).forEach(k => {
+      console.log(`${GitTemplatesInstaller.indentation}* ${k}: ${this.configuration[k]}`);
+    });
+  }
+
+  validateTemplate(callback){
+    this._listTemplates(templates => {
+      const valid = templates.find(t => t === this.template);
+
+      if(!valid)
+        return this._showError(`Template "${this.template}" is not valid. Run again with -l to list valid templates.`);
+
+      callback();
+    });
   }
 
   perform(){
+    this.showConfiguration();
 
+    // Get all the files
+    this._apiCall(`https://api.github.com/repos/${GitTemplatesInstaller.repository}/contents/templates/${this.template}`, (rootStatus, rootHeaders, rootBody) => {
+      console.log(rootBody);
+    });
   }
 
   list(){
     this._listTemplates(templates => {
-      console.log(`[ INFO] Valid templates are:\n${templates.map(p => `   * ${p}`).join("\n")}`);
+      templates = templates.map(t => t.path);
+
+      if(!templates.length)
+        console.log(`[ WARN] No valid templates found.`);
+      else
+        console.log(`[ INFO] Valid templates are:\n${templates.map(p => `${GitTemplatesInstaller.indentation}* ${p}`).join("\n")}`);
     });
   }
 
@@ -73,14 +98,14 @@ class GitTemplatesInstaller{
 
     // Parse the command line
     process.argv.slice(2).forEach(arg => {
-      if(arg.match(/-[hu\?]|--help|--usage/)){
-        console.log(`node ${path.basename(process.argv[1])} [-l|--list] [-n|--dry-run] TEMPLATE [CONFIGURATION_FILE]`)
+      if(arg.match(/^-[hu\?]|--help|--usage$/)){
+        console.log(`node ${path.basename(process.argv[1])} [-l|--list] [-n|--dry-run] TEMPLATE [CONFIGURATION_FILE]`);
         process.exit(0);
       }
 
-      if(arg.match(/-l|--list/))
+      if(arg.match(/^-l|--list$/))
         this.listOnly = true;
-      else if(arg.match(/-n|--dry-run/))
+      else if(arg.match(/^-n|--dry-run$/))
         this.dryRun = true;
       else if(!this.template)
         this.template = arg;
@@ -100,15 +125,17 @@ class GitTemplatesInstaller{
     try{
       Object.assign(this.configuration, require(this.configFile));
     }catch(e){
-      console.error(`[WARN] Cannot load file ${this.configFile}, will continue with default configuration.`);
+      console.error(`[ WARN] Cannot load file ${this.configFile}, will continue with default configuration.`);
     }
+
+    if(!this.configuration.description)
+      this.configuration.description = this.configuration.summary;
 
     // The template is required
     if(!this.template)
       this._showError("Please provide the template. Run again with -h to have more informations.");
 
-    this.showConfiguration();
-    return this.perform();
+    return this.validateTemplate(() => this.perform());
   }
 
   _showError(error){
@@ -120,14 +147,17 @@ class GitTemplatesInstaller{
     const options = urlParser.parse(url);
     options.headers = {"User-Agent": "git-templates/1.0.0"};
 
+    // Perform the GH call
     https
       .get(options, (res) => {
         let buffer = new Buffer(0);
 
         res
+          // Concat data
           .on("data", data => {
             buffer = Buffer.concat([buffer, data]);
           })
+          // Call the callback
           .on("end", () => {
             callback(res.statusCode, res.headers, buffer.toString());
           });
@@ -138,15 +168,18 @@ class GitTemplatesInstaller{
   }
 
   _listTemplates(callback){
-    this._apiCall(`https://api.github.com/repos/${GitTemplatesInstaller.repository}/git/trees/master`, (status, headers, body) => {
-      if(status !== HTTP_STATUS_OK)
-        this._showError(`Cannot list templates (HTTP ${status}): ${body.toString()}`);
+    // First of all, find the SHA of the templates folder
+    this._apiCall(`https://api.github.com/repos/${GitTemplatesInstaller.repository}/contents/templates`, (rootStatus, rootHeaders, rootBody) => {
+      if(rootStatus !== HTTP_STATUS_OK)
+        this._showError(`Cannot list templates (HTTP ${rootStatus}): ${rootBody.toString()}`);
 
-      callback(JSON.parse(body).tree.filter(p => p.type === "blob").map(p => p.path))
+      const templates = JSON.parse(rootBody).map(p => p.name);
+      callback(templates);
     });
   }
 }
 
+GitTemplatesInstaller.indentation = " ".repeat(8);
 GitTemplatesInstaller.repository = "ShogunPanda/git-templates";
 
 GitTemplatesInstaller.defaultConfiguration = {
