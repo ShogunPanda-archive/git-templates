@@ -31,3 +31,5 @@ Where:
     * `url`: URL of the main page for the project.
     
     This will default to the `.git-template.json` in the current folder.
+    
+To use authenticated API calls, provide the GITHUB_AUTH variable in the form `$USER:$PASSWORD` or `$USER:$PERSONAL_ACCESS_TOKEN`.

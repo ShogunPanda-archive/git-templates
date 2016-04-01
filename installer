@@ -14,82 +14,18 @@ if(typeof String.prototype.titleize !== "function"){
   };
 }
 
-// if(typeof String.prototype.underscore !== "function"){
-//   String.prototype.underscore = function(){
-//     return this.trim().replace(/([a-z\d])([A-Z]+)/g, "$1_$2").replace(/[-\s]+/g, "_").toLowerCase();
-//   };
-// }
-//
-// if(typeof String.prototype.pad !== "function"){
-//   String.prototype.pad = function(length = 1, filler = " "){
-//     if(length < 0)
-//       throw new RangeError("Invalid length.");
-//
-//     const padder = (length - this.length) / 2;
-//
-//     return padder < 0 ? this : filler.repeat(Math.floor(padder)) + this + filler.repeat(Math.ceil(padder));
-//   };
-// }
-//
-// if(typeof String.prototype.padLeft !== "function"){
-//   String.prototype.padLeft = function(length = 1, filler = " "){
-//     if(length < 0)
-//       throw new RangeError("Invalid length.");
-//
-//     return this.length >= length ? this : (this + filler.repeat(length)).slice(0, length);
-//   };
-// }
-//
-// if(typeof String.prototype.padRight !== "function"){
-//   String.prototype.padRight = function(length = 1, filler = " "){
-//     if(length < 0)
-//       throw new RangeError("Invalid length.");
-//
-//     return this.length >= length ? this : (filler.repeat(length) + this).slice(-length);
-//   };
-// }
+if(typeof String.prototype.padRight !== "function"){
+  String.prototype.padRight = function(length, filler){
+    if(length < 0)
+      throw new RangeError("Invalid length.");
+
+    return this.length >= length ? this : (filler.repeat(length) + this).slice(-length);
+  };
+}
 
 class GitTemplatesInstaller{
-  showConfiguration(){
-    console.log(`[ INFO] Using the following configuration:`);
-
-    Object.keys(this.configuration).forEach(k => {
-      console.log(`${GitTemplatesInstaller.indentation}* ${k}: ${this.configuration[k]}`);
-    });
-  }
-
-  validateTemplate(callback){
-    this._listTemplates(templates => {
-      const valid = templates.find(t => t === this.template);
-
-      if(!valid)
-        return this._showError(`Template "${this.template}" is not valid. Run again with -l to list valid templates.`);
-
-      callback();
-    });
-  }
-
-  perform(){
-    this.showConfiguration();
-
-    // Get all the files
-    this._apiCall(`https://api.github.com/repos/${GitTemplatesInstaller.repository}/contents/templates/${this.template}`, (rootStatus, rootHeaders, rootBody) => {
-      console.log(rootBody);
-    });
-  }
-
-  list(){
-    this._listTemplates(templates => {
-      templates = templates.map(t => t.path);
-
-      if(!templates.length)
-        console.log(`[ WARN] No valid templates found.`);
-      else
-        console.log(`[ INFO] Valid templates are:\n${templates.map(p => `${GitTemplatesInstaller.indentation}* ${p}`).join("\n")}`);
-    });
-  }
-
   run(){
+    this.apiRoot = `https://${process.env.GITHUB_AUTH ? `${process.env.GITHUB_AUTH}@` : ""}api.github.com/repos`;
     this.configuration = GitTemplatesInstaller.defaultConfiguration;
     this.template = null;
     this.configFile = null;
@@ -135,7 +71,97 @@ class GitTemplatesInstaller{
     if(!this.template)
       this._showError("Please provide the template. Run again with -h to have more informations.");
 
-    return this.validateTemplate(() => this.perform());
+    // Only perform on empty directories
+    if(!this.verifyEmptyDirectory())
+      this._showError("This utility can only be used on empty directories (configuration file are ignored)");
+
+    return this.validateTemplate(sha => this.perform(sha));
+  }
+
+  showConfiguration(){
+    console.log(`[ INFO] Using the following configuration:`);
+
+    Object.keys(this.configuration).forEach(k => {
+      console.log(`${GitTemplatesInstaller.indentation}* ${k}: ${this.configuration[k]}`);
+    });
+  }
+
+  validateTemplate(callback){
+    this._listTemplates(templates => {
+      const valid = templates.find(t => t.path === this.template);
+
+      if(!valid)
+        return this._showError(`Template "${this.template}" is not valid. Run again with -l to list valid templates.`);
+
+      callback(valid.sha);
+    });
+  }
+
+  verifyEmptyDirectory(){
+    return !fs.readdirSync(process.cwd()).map(p => path.resolve(p)).filter(p => p !== this.configFile).length;
+  }
+
+  perform(sha){
+    this.showConfiguration();
+
+    // Get all the files
+    this._apiCall(
+      `${this.apiRoot}/${GitTemplatesInstaller.repository}/git/trees/${sha}?recursive=1`,
+      "Listing template contents",
+      "Cannot list template contents",
+      (rootStatus, rootHeaders, rootBody) => {
+        // Construct a list of [path, URL]
+        const contents = JSON.parse(rootBody).tree.reduce((accu, object) => {
+          if(object.type !== "tree" && !object.path.endsWith(".gitkeep"))
+            accu.push([object.path, object.url]);
+          return accu;
+        }, []);
+
+        // Start setting up files
+        this.setupFile(contents, 1, contents.length, contents.length.toString().length);
+      }
+    );
+  }
+
+  list(){
+    this._listTemplates(templates => {
+      templates = templates.map(t => t.path);
+
+      if(!templates.length)
+        console.log(`[ WARN] No valid templates found.`);
+      else
+        console.log(`[ INFO] Valid templates are:\n${templates.map(p => `${GitTemplatesInstaller.indentation}* ${p}`).join("\n")}`);
+    });
+  }
+
+  setupFile(files, index, total, indexPadding){
+    const currentFile = files.shift();
+    const progress = `[${index.toString().padRight(indexPadding, "0")}/${total}]`;
+    const padder = " ".repeat(progress.length);
+    const destination = currentFile[0];
+    let template = false;
+    let url = currentFile[1];
+
+    console.log(`[ INFO] ${progress} Creating file ${destination}${template ? " (with template compilation)" : ""} ...`);
+
+    // Check if template is needed
+    if(destination.endsWith(".gt-tpl")){
+      template = true;
+      destination.replace(/.gt-tpl$/, "");
+    }
+
+    // Download the file
+    if(process.env.GITHUB_AUTH)
+      url = url.replace("https://", `https://${process.env.GITHUB_AUTH}@`);
+
+    this._apiCall(
+      url,
+      `${padder} * Downloading ${url} ...`, "Cannot download file",
+      (status, headers, body) => {
+        if(files.length)
+          this.setupFile(files, index + 1, total, indexPadding);
+      }
+    );
   }
 
   _showError(error){
@@ -143,10 +169,11 @@ class GitTemplatesInstaller{
     process.exit(-1);
   }
 
-  _apiCall(url, callback){
+  _apiCall(url, info, errorPrefix, callback){
     const options = urlParser.parse(url);
     options.headers = {"User-Agent": "git-templates/1.0.0"};
 
+    console.log(`[ INFO] ${info} ...`);
     // Perform the GH call
     https
       .get(options, (res) => {
@@ -159,22 +186,42 @@ class GitTemplatesInstaller{
           })
           // Call the callback
           .on("end", () => {
-            callback(res.statusCode, res.headers, buffer.toString());
+            if(res.statusCode !== HTTP_STATUS_OK)
+              return this._showError(`${errorPrefix} (HTTP ${res.statusCode}): ${buffer.toString()}`);
+
+            return callback(res.statusCode, res.headers, buffer.toString());
           });
       })
       .on("error", e => {
-        this._showError(`Cannot list templates: ${e.message}`);
+        this._showError(`Cannot perform HTTP call to ${url}: ${e.message}`);
       });
   }
 
   _listTemplates(callback){
     // First of all, find the SHA of the templates folder
-    this._apiCall(`https://api.github.com/repos/${GitTemplatesInstaller.repository}/contents/templates`, (rootStatus, rootHeaders, rootBody) => {
-      if(rootStatus !== HTTP_STATUS_OK)
-        this._showError(`Cannot list templates (HTTP ${rootStatus}): ${rootBody.toString()}`);
+    this._apiCall(
+      `${this.apiRoot}/${GitTemplatesInstaller.repository}/git/trees/master`,
+      `Accessing repository ${GitTemplatesInstaller.repository}`,
+      "Cannot access repository",
+      (rootStatus, rootHeaders, rootBody) => {
+        // Find the right item
+        const root = JSON.parse(rootBody).tree.find(p => p.type === "tree" && p.path === "templates");
 
-      const templates = JSON.parse(rootBody).map(p => p.name);
-      callback(templates);
+        if(!root)
+          return callback([]);
+
+        // Now list the templates folder
+        return this._apiCall(
+          `${this.apiRoot}/${GitTemplatesInstaller.repository}/git/trees/${root.sha}`,
+          "Fetching available templates",
+          "Cannot list templates",
+          (status, headers, body) => {
+            if(status !== HTTP_STATUS_OK)
+              this._showError(` (HTTP ${status}): ${rootBody.toString()}`);
+
+            callback(JSON.parse(body).tree.filter(p => p.type !== "blob"));
+          }
+        );
     });
   }
 }
