@@ -1,9 +1,9 @@
 # {{name}}
 
 [![Package Version](https://badge.fury.io/js/{{name}}.png)](http://badge.fury.io/js/{{name}})
-[![Dependency Status](https://gemnasium.com/{{author}}/{{name}}.png?travis)](https://gemnasium.com/{{githubUser}}/{{name}})
-[![Build Status](https://secure.travis-ci.org/{{author}}/{{name}}.png?branch=master)](http://travis-ci.org/{{githubUser}}/{{name}})
-[![Coverage Status](https://coveralls.io/repos/{{author}}/{{name}}/badge.png)](https://coveralls.io/r/{{githubUser}}/{{name}})
+[![Dependency Status](https://gemnasium.com/{{githubUser}}/{{name}}.png?travis)](https://gemnasium.com/{{githubUser}}/{{name}})
+[![Build Status](https://secure.travis-ci.org/{{githubUser}}/{{name}}.png?branch=master)](http://travis-ci.org/{{githubUser}}/{{name}})
+[![Coverage Status](https://coveralls.io/repos/{{githubUser}}/{{name}}/badge.png)](https://coveralls.io/r/{{githubUser}}/{{name}})
 
 {{description}}
 

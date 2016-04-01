@@ -28,7 +28,7 @@ Where:
     * `githubUser`: GitHub username of the author. Default is **ShogunPanda**.
     * `summary`: Short description of the project.
     * `description`: Long description of the project. Defaults to `summary`.
-    * `url`: URL of the main page for the project.
+    * `url`: URL of the main page for the project. Defaults to `https://github.com/{{githubUser}}/{{name}}`.
     
     This will default to the `.git-template.json` in the current folder.
     
