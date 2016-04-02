@@ -85,7 +85,8 @@ class GitTemplatesInstaller{
     if(!this.url)
       this.configuration.url = `https://github.com/${this.configuration.githubUser}/${this.configuration.name}`;
 
-    this.templateRegex = new RegExp(`(\\{\\{(${Object.keys(this.configuration).join("|")})\\}\\})`, "gm");
+    this.fileNameRegex = new RegExp(`(__(${Object.keys(this.configuration).join("|")})__)`, "gm");
+    this.fileContentsRegex = new RegExp(`(\\{\\{(${Object.keys(this.configuration).join("|")})\\}\\})`, "gm");
   }
 
   showConfiguration(){
@@ -177,11 +178,12 @@ class GitTemplatesInstaller{
   }
 
   createFile(destination, contents, template, callback){
+    destination = destination.replace(this.fileNameRegex, (match) => this.configuration[RegExp.$2] || "");
     destination = path.resolve(destination);
     const parent = path.dirname(destination);
 
     if(template)
-      contents = contents.replace(this.templateRegex, (match) => this.configuration[RegExp.$2] || "");
+      contents = contents.replace(this.fileContentsRegex, (match) => this.configuration[RegExp.$2] || "");
 
     childProcess.exec(`mkdir -p ${parent}`, mkdirError => {
       if(mkdirError)
