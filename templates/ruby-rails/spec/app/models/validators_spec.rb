@@ -65,6 +65,10 @@ describe Validators::ReferenceValidator do
   end
 
   describe "#validate_each" do
+    before(:each) do
+      allow(ReferenceMockOtherModel).to receive(:find_with_any).and_return(false)
+    end
+
     it "should correctly validate fields" do
       subject = ReferenceMockModel.new
       subject.field = 100
