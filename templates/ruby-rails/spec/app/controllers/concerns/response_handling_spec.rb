@@ -22,7 +22,6 @@ describe Concerns::ResponseHandling do
       subject.instance_variable_set(:@meta, "BAR")
       expect(subject.response_meta).to eq("BAR")
     end
-
   end
 
   describe "#response_data" do
@@ -32,6 +31,38 @@ describe Concerns::ResponseHandling do
 
       subject.instance_variable_set(:@data, "BAR")
       expect(subject.response_data).to eq("BAR")
+    end
+  end
+
+  describe "#response_links" do
+    it "should return the right links" do
+      expect(subject.response_links).to be_a(HashWithIndifferentAccess)
+      expect(subject.response_links("FOO")).to eq("FOO")
+
+      subject.instance_variable_set(:@links, "BAR")
+      expect(subject.response_links).to eq("BAR")
+    end
+  end
+
+  describe "#response_included" do
+    it "should return the right included data" do
+      allow(subject).to receive(:controller).and_return(OpenStruct.new(included: nil))
+      expect(subject.response_included).to be_a(HashWithIndifferentAccess)
+      expect(subject.response_included("FOO")).to eq("FOO")
+
+      allow(subject).to receive(:controller).and_return(OpenStruct.new(included: "BAR"))
+      subject.instance_variable_set(:@links, "BAR")
+      expect(subject.response_links).to eq("BAR")
+    end
+  end
+
+  describe "#response_include" do
+    it "should add included data" do
+      data = {}
+      allow(subject).to receive(:controller).and_return(OpenStruct.new(included: data))
+
+      subject.response_include("DATA")
+      expect(data).to eq({"string:DATA"=>["DATA", nil]})
     end
   end
 

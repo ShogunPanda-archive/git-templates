@@ -22,7 +22,7 @@ module Concerns
       end
 
       def search(params: {}, query: nil, fields: ["name"], start_only: false, parameter: nil, placeholder: :query, method: :or, case_sensitive: false)
-        query ||= self.where({})
+        query ||= where({})
         value = parameter ? params[parameter] : params.dig(:filter, :query)
         return query if value.blank?
 
@@ -32,7 +32,7 @@ module Concerns
         method = method == :or ? " OR " : " AND "
         operator = case_sensitive ? "LIKE" : "ILIKE"
 
-        sql = fields.map {|f| "#{f} #{operator} :#{placeholder}" }.join(method)
+        sql = fields.map { |f| "#{f} #{operator} :#{placeholder}" }.join(method)
         query.where(sql, {placeholder => value})
       end
     end

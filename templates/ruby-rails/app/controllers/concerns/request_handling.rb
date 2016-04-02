@@ -124,7 +124,7 @@ module Concerns
 
       ActionController::Parameters.new(data).permit(target.class::ATTRIBUTES).merge(copied) # Now return by restoring copied attributes
     rescue ActionController::UnpermittedParameters => e
-      e.params.map! {|s| sprintf("attributes.%s", s) }
+      e.params.map! { |s| sprintf("attributes.%s", s) }
       raise e
     end
 
@@ -155,7 +155,7 @@ module Concerns
 
       resolve_references(target, relationships, ActionController::Parameters.new(data[field]).permit(allowed))
     rescue ActionController::UnpermittedParameters => e
-      e.params.map! {|s| sprintf("%s.%s", field, s) }
+      e.params.map! { |s| sprintf("%s.%s", field, s) }
       raise e
     end
 

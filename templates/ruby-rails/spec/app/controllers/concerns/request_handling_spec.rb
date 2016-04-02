@@ -12,6 +12,27 @@ describe Concerns::RequestHandling do
       @params = params || HashWithIndifferentAccess.new
       @headers = HashWithIndifferentAccess.new
     end
+
+    def fail_request!(status, error)
+      raise(Errors::BaseError, {status: status, error: error})
+    end
+  end
+
+  FirstMockModel = Struct.new(:id)
+
+  class SecondMockModel
+  end
+
+  class MockModel
+    include ActiveModel::Model
+    include Concerns::AdditionalValidations
+
+    ATTRIBUTES = [:id, :other, :created_at, :first_mock_model]
+    RELATIONSHIPS = {first_mock_model: nil, second: SecondMockModel}
+
+    def self.column_types
+      {"id" =>  OpenStruct.new(type: :string), "other" => OpenStruct.new(type: :boolean), "created_at" => OpenStruct.new(type: :datetime)}
+    end
   end
 
   subject { RequestHandlingMockContainer.new }
@@ -93,62 +114,123 @@ describe Concerns::RequestHandling do
       subject.request.body = OpenStruct.new(read: {data: {foo: 1, body: 1}}.to_json)
       subject.request_validate
 
-      expect(subject).to receive(:fail_request!).with(:bad_request, "No type provided when type \"update_notification\" was expected.").and_raise(RuntimeError)
-      expect { subject.request_extract_model(UpdateNotification.new) }.to raise_error(RuntimeError)
+      expect(subject).to receive(:fail_request!).with(:bad_request, "No type provided when type \"mock_model\" was expected.").and_raise(RuntimeError)
+      expect { subject.request_extract_model(MockModel.new) }.to raise_error(RuntimeError)
     end
 
     it "should complain if the type is wrong in the data" do
       subject.request.body = OpenStruct.new(read: {data: {type: "foo", foo: 1, body: 1}}.to_json)
       subject.request_validate
 
-      expect(subject).to receive(:fail_request!).with(:bad_request, "Invalid type \"foo\" provided when type \"update_notification\" was expected.").and_raise(RuntimeError)
-      expect { subject.request_extract_model(UpdateNotification.new) }.to raise_error(RuntimeError)
+      expect(subject).to receive(:fail_request!).with(:bad_request, "Invalid type \"foo\" provided when type \"mock_model\" was expected.").and_raise(RuntimeError)
+      expect { subject.request_extract_model(MockModel.new) }.to raise_error(RuntimeError)
     end
 
     it "should complain if the data is not inside the attributes field" do
-      subject.request.body = OpenStruct.new(read: {data: {type: "update_notification", foo: 1, body: 1}}.to_json)
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", foo: 1, body: 1}}.to_json)
       subject.request_validate
 
       expect(subject).to receive(:fail_request!).with(:bad_request, "Missing attributes in the \"attributes\" field.").and_raise(RuntimeError)
-      expect { subject.request_extract_model(UpdateNotification.new) }.to raise_error(RuntimeError)
+      expect { subject.request_extract_model(MockModel.new) }.to raise_error(RuntimeError)
     end
 
-    it "should complain if any unknown attribute is present for the update_notification" do
-      subject.request.body = OpenStruct.new(read: {data: {type: "update_notification", attributes: {foo: 1, body: 1}}}.to_json)
+    it "should complain if any unknown attribute is present for the mock_model" do
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {foo: 1, other: 1}}}.to_json)
       subject.request_validate
 
-      expect { subject.request_extract_model(UpdateNotification.new) }.to raise_error(ActionController::UnpermittedParameters) do |error|
+      expect { subject.request_extract_model(MockModel.new) }.to raise_error(ActionController::UnpermittedParameters) do |error|
         expect(error.params).to eq(["attributes.foo"])
       end
     end
 
     it "should allowed hash attributes" do
-      subject.request.body = OpenStruct.new(read: {data: {type: "update_notification", attributes: {foo: 1, body: {a: 1}}}}.to_json)
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {foo: 1, other: {a: 1}}}}.to_json)
       subject.request_validate
 
-      expect { subject.request_extract_model(UpdateNotification.new) }.to raise_error(ActionController::UnpermittedParameters) do |error|
+      expect { subject.request_extract_model(MockModel.new) }.to raise_error(ActionController::UnpermittedParameters) do |error|
         expect(error.params).to eq(["attributes.foo"])
       end
     end
 
-    it "should return attributes for the update_notification" do
-      subject.request.body = OpenStruct.new(read: {data: {type: "update_notification", attributes: {email: "1", zip: 1}}}.to_json)
+    it "should return attributes for the mock_model" do
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: "1", other: 1}}}.to_json)
       subject.request_validate
 
-      expect(subject.request_extract_model(UpdateNotification.new)).to eq({email: "1", zip: 1}.with_indifferent_access)
+      expect(subject.request_extract_model(MockModel.new)).to eq({id: "1", other: 1}.with_indifferent_access)
+    end
+
+    it "should return relationships for the model" do
+      first = FirstMockModel.new(1)
+      allow(FirstMockModel).to receive(:find_with_any).and_return(first)
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1}, relationships: {first_mock_model: {data: {type: "first_mock_model", id: first.id}}}}}.to_json)
+      subject.request_validate
+
+      expect(subject.request_extract_model(MockModel.new)).to eq({id: 1, first_mock_model: first}.with_indifferent_access)
+    end
+
+    it "should move inline references to the relationship objects" do
+      first = FirstMockModel.new(1)
+      allow(FirstMockModel).to receive(:find_with_any).and_return(first)
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1, first_mock_model: first.id}}}.to_json)
+      subject.request_validate
+
+      extracted = subject.request_extract_model(MockModel.new)
+      expect(extracted.keys.map(&:to_sym)).to eq([:id, :first_mock_model])
+      expect(extracted[:first_mock_model].id).to eq(first.id)
+    end
+
+    it "should reject unallowed relationships" do
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1}, relationships: {another: {}}}}.to_json)
+      subject.request_validate
+
+      target = MockModel.new
+      expect { subject.request_extract_model(target) }.to raise_error(ActionController::UnpermittedParameters) do |error|
+        expect(error.params).to eq(["relationships.another"])
+      end
+    end
+
+    it "should reject malformed relationships" do
+      first = FirstMockModel.new(1)
+
+      target = MockModel.new
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1}, relationships: {first_mock_model: {data: {id: first.id}}}}}.to_json)
+      subject.request_validate
+      subject.request_extract_model(target)
+      expect(target.additional_errors.to_hash).to eq({first_mock_model: ["Relationship does not contain the \"data.type\" attribute"]})
+
+      target = MockModel.new
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1}, relationships: {first_mock_model: {data: {type: "first_mock_model"}}}}}.to_json)
+      subject.request_validate
+      subject.request_extract_model(target)
+      expect(target.additional_errors.to_hash).to eq({first_mock_model: ["Relationship does not contain the \"data.id\" attribute"]})
+
+      target = MockModel.new
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1}, relationships: {first_mock_model: {data: {type: "foo", id: 1}}}}}.to_json)
+      subject.request_validate
+      subject.request_extract_model(target)
+      expect(target.additional_errors.to_hash).to eq({first_mock_model: ["Invalid relationship type \"foo\" provided for when type \"first_mock_model\" was expected."]})
+    end
+
+    it "should reject invalid relationships" do
+      allow(SecondMockModel).to receive(:find_with_any).and_return(false)
+      target = MockModel.new
+      subject.request.body = OpenStruct.new(read: {data: {type: "mock_model", attributes: {id: 1}, relationships: {second: {data: {type: "second_mock_model", id: -1}}}}}.to_json)
+      subject.request_validate
+      subject.request_extract_model(target)
+      expect(target.additional_errors.to_hash).to eq({second: ["Refers to a non existing \"second_mock_model\" resource."]})
     end
   end
 
   describe "#request_cast_attributes" do
-    it "should correctly cast attributes for a update_notification" do
-      attributes = {id: 3, created_at: "2001-02-03T04:05:06.789+0700"}.with_indifferent_access
-      casted_attributes = {id: 3, created_at: DateTime.civil(2001, 2, 3, 4, 5, 6.789, "+7")}.with_indifferent_access
-      expect(subject.request_cast_attributes(UpdateNotification.new, attributes)).to eq(casted_attributes)
+    it "should correctly cast attributes for a mock_model" do
+      attributes = {id: 3, other: "YES", created_at: "2001-02-03T04:05:06.789+0700"}.with_indifferent_access
+      casted_attributes = {id: 3, other: true, created_at: DateTime.civil(2001, 2, 3, 4, 5, 6.789, "+7")}.with_indifferent_access
+      expect(subject.request_cast_attributes(MockModel.new, attributes)).to eq(casted_attributes)
     end
 
-    it "should add casting errors to the update_notification validation errors" do
-      attributes = {id: 3, is_tracked: "yes", created_at: "NO"}.with_indifferent_access
-      object = UpdateNotification.new
+    it "should add casting errors to the mock_model validation errors" do
+      attributes = {id: 3, other: "yes", created_at: "NO"}.with_indifferent_access
+      object = MockModel.new
       subject.request_cast_attributes(object, attributes)
       expect(object.additional_errors.to_hash).to eq(created_at: ["Invalid timestamp \"NO\"."])
     end

@@ -38,7 +38,7 @@ describe Concerns::PaginationHandling do
 
     context "when using the offset" do
       it "should apply the query" do
-        collection = Make
+        collection = []
         cursor = JWT.encode({aud: "pagination", sub: {value: 12, size: 56, use_offset: true, direction: "next"}}, Rails.application.secrets.jwt, "HS256")
         subject = PaginationHandlingMockContainer.new({page: cursor})
 
@@ -52,7 +52,7 @@ describe Concerns::PaginationHandling do
 
     context "when NOT going next" do
       it "should reverse results" do
-        collection = Make
+        collection = []
         cursor = JWT.encode({aud: "pagination", sub: {value: 12, size: 56, use_offset: true, direction: "prev"}}, Rails.application.secrets.jwt, "HS256")
         subject = PaginationHandlingMockContainer.new({page: cursor})
 

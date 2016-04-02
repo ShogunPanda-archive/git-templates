@@ -2,24 +2,37 @@ require "spec_helper"
 
 describe Concerns::Querying do
   class MockQueryingModel < ApplicationRecord
-    self.table_name = "models"
     SECONDARY_QUERY = "name = :id"
 
-    attr_accessor :handle, :name, :uuid
+    def self.table_name
+      "querying_temp_table"
+    end
   end
 
   class MockQueryingOtherModel < ApplicationRecord
-    self.table_name = "models"
     SECONDARY_KEY = :handle
+
+    def self.table_name
+      "querying_temp_table"
+    end
   end
 
   class MockQueryingAnotherModel < ApplicationRecord
-    self.table_name = "models"
+    def self.table_name
+      "querying_temp_table"
+    end
   end
 
   subject {
     MockQueryingModel.new(id: SecureRandom.uuid, handle: "HANDLE", name: "NAME")
   }
+
+  around(:each) do |example|
+    ApplicationRecord.connection.execute("CREATE TABLE IF NOT EXISTS querying_temp_table(id uuid, handle varchar, name varchar);")
+    example.call
+    ApplicationRecord.connection.execute("DROP TABLE IF EXISTS querying_temp_table;")
+  end
+
 
   describe ".find_with_any!" do
     it "should find a record using the primary key when the ID is a UUID" do
@@ -60,7 +73,7 @@ describe Concerns::Querying do
 
   describe ".search" do
     let(:params) { {filter: {query: "ABC"}} }
-    let(:table_name) { "models" }
+    let(:table_name) { "querying_temp_table" }
 
     it "should do nothing if no value is present" do
       expect(MockQueryingOtherModel.search().to_sql).to eq("SELECT \"#{table_name}\".* FROM \"#{table_name}\"")

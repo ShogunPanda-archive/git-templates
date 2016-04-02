@@ -94,7 +94,6 @@ describe Validators::EmailValidator do
     validates :field, "validators/email" => true
   end
 
-  describe
   describe "#validate_each" do
     it "should correctly validate fields" do
       subject = EmailMockModel.new

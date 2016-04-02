@@ -1,7 +1,7 @@
 module Middlewares
   class Profiler
     def self.hostname
-      @hostname ||= %x{hostname}.strip
+      @hostname ||= `hostname`.strip
     end
 
     def initialize(app)
