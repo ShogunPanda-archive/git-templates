@@ -1,0 +1,14 @@
+---
+development: &main
+  adapter:
+  encoding: unicode
+  host:
+  port:
+  database: main
+  username:
+  password:
+  pool: 5
+
+test:
+  <<: *main
+  database: test

@@ -1,0 +1,52 @@
+require File.expand_path("../boot", __FILE__)
+
+require "rails"
+require "active_model/railtie"
+require "active_job/railtie"
+require "active_record/railtie"
+require "action_controller/railtie"
+require "action_mailer/railtie"
+require "action_view/railtie"
+
+# Require the gems listed in Gemfile, including any gems
+# you've limited to :test, :development, or :production.
+Bundler.require(:default)
+
+begin
+  Bundler.require(:development)
+  Bundler.require(:test) if Rails.env.test?
+rescue Bundler::GemNotFound
+  # We ignore the require error because on non development machines we don't install development and test
+end
+
+# Require lib files
+Dir.glob(__dir__ + "/../lib/**/*.rb") {|f| require(f) }
+
+module {{namespace}}
+  class Application < Rails::Application
+    config.action_controller.action_on_unpermitted_parameters = :raise
+    config.active_record.raise_in_transactional_callbacks = true
+    config.middleware.use(Middlewares::Profiler)
+    config.middleware.use(Rack::Deflater)
+    config.action_mailer.delivery_method = :smtp
+
+    config.timestamp_formats = {
+      default: "%FT%T%z", # ISO 8601
+      full: "%FT%T.%L%z", # ISO 8601 with milliseconds
+      clean: "%Y%m%dT%H%M%S.%L%z", # ISO 8601 without dashes or semicolons
+      clean_full: "%Y%m%dT%H%M%S.%L%z" # ISO 8601 with milliseconds and without dashes or semicolons
+    }.freeze
+
+    ActiveSupport.halt_callback_chains_on_return_false = false
+
+    ActiveRecord::Base.logger = Logger.new(Rails.root + "log/activerecord-#{Rails.env}.log")
+
+    def rails_root
+      @rails_root ||= Rails.root.to_s
+    end
+
+    def gems_root
+      @gems_root ||= Pathname.new(Gem.loaded_specs["rails"].full_gem_path).parent.to_s
+    end
+  end
+end

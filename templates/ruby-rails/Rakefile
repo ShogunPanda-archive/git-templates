@@ -1,0 +1,18 @@
+require File.expand_path("../config/application", __FILE__)
+
+begin
+  require "rspec/core/rake_task"
+
+  RSpec::Core::RakeTask.new("spec:coverage") do
+    ENV["COVERAGE"] = "true"
+  end
+
+  desc "Performs linting of the code using rubocop"
+  task "lint" do
+    Kernel.exec("rubocop -ED app lib")
+  end
+rescue LoadError
+  # We ignore the require error because on non development machines we don't install rspec
+end
+
+Rails.application.load_tasks
