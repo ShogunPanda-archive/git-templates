@@ -50,6 +50,37 @@ describe Validators::UuidValidator do
   end
 end
 
+describe Validators::ReferenceValidator do
+  class ReferenceMockOtherModel < ApplicationRecord
+    self.table_name = "models"
+    SECONDARY_QUERY = "name = :id"
+  end
+
+  class ReferenceMockModel
+    include ActiveModel::Validations
+    include Concerns::AdditionalValidations
+
+    attr_accessor :field
+    validates :field, "validators/reference" => {class_name: "reference_mock_other_model"}
+  end
+
+  describe "#validate_each" do
+    it "should correctly validate fields" do
+      subject = ReferenceMockModel.new
+      subject.field = 100
+      subject.validate
+      expect(subject.errors.to_hash).to eq({field: ["must be a valid ReferenceMockOtherModel (cannot find a ReferenceMockOtherModel with id \"100\")"]})
+    end
+
+    it "should correctly validate fields when they are array" do
+      subject = ReferenceMockModel.new
+      subject.field = [100, 101]
+      subject.validate
+      expect(subject.errors.to_hash).to eq({field: ["must be a valid ReferenceMockOtherModel (cannot find a ReferenceMockOtherModel with id \"100\")", "must be a valid ReferenceMockOtherModel (cannot find a ReferenceMockOtherModel with id \"101\")"]})
+    end
+  end
+end
+
 describe Validators::EmailValidator do
   class EmailMockModel
     include ActiveModel::Validations
