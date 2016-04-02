@@ -5,12 +5,17 @@ describe Concerns::ResponseHandling do
     include Concerns::ResponseHandling
   end
 
+  module Mockspace
+    class NameMockController
+    end
+  end
+
   subject { ResponseHandlingMockContainer.new }
 
   describe "#response_template_for" do
     it "should return the right template" do
-      expect(subject.response_template_for(Resources::MakesController.new)).to eq("resources_makes_controller")
-      expect(subject.response_template_for([Resources::MakesController.new])).to eq("resources_makes_controller")
+      expect(subject.response_template_for(Mockspace::NameMockController.new)).to eq("mockspace_name_mock_controller")
+      expect(subject.response_template_for([Mockspace::NameMockController.new])).to eq("mockspace_name_mock_controller")
     end
   end
 

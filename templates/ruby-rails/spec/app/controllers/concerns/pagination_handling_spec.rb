@@ -24,10 +24,11 @@ describe Concerns::PaginationHandling do
   describe "#paginate" do
     context "when NOT using the offset" do
       it "should apply the query" do
-        collection = Make
+        collection = []
         cursor = JWT.encode({aud: "pagination", sub: {value: "2001-02-03T04:05:06.789+0700", size: 34, direction: "next"}}, Rails.application.secrets.jwt, "HS256")
         subject = PaginationHandlingMockContainer.new({page: cursor})
 
+        expect(collection).to receive(:columns_hash).and_return({"created_at" => OpenStruct.new(type: "datetime")})
         expect(collection).to receive(:where).with("created_at > ?", DateTime.civil(2001, 2, 3, 4, 5, 6.789, "+7")).and_return(collection)
         expect(collection).to receive(:limit).with(34).and_return(collection)
         expect(collection).to receive(:order).with("created_at ASC").and_return(collection)
