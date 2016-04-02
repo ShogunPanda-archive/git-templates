@@ -1,0 +1,28 @@
+#
+# This file is part of the {{namespace}} gem. Copyright (C) {{year}} and above {{author}} <{{authorEmail}}>.
+# Licensed under the MIT license, which can be found at http://www.opensource.org/licenses/mit-license.php.
+#
+
+require File.expand_path("../lib/{{name}}/version", __FILE__)
+
+Gem::Specification.new do |gem|
+  gem.name = "{{name}}"
+  gem.version = {{namespace}}::Version::STRING
+  gem.homepage = "{{url}}"
+  gem.summary = %q{{{summary}}}
+  gem.description = %q{{{description}}}
+  gem.rubyforge_project = "{{name}}"
+
+  gem.authors = ["{{author}}"]
+  gem.email = ["{{authorEmail}}"]
+  gem.license = "MIT"
+
+  gem.files = `git ls-files`.split($\)
+  gem.executables = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+  gem.test_files = gem.files.grep(%r{^(test|spec|features)/})
+  gem.require_paths = ["lib"]
+
+  gem.required_ruby_version = ">= 2.3.0"
+
+  # Add gem dependencies here
+end
