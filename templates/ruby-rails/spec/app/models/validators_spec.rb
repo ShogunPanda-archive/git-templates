@@ -227,27 +227,3 @@ describe Validators::TimestampValidator do
     end
   end
 end
-
-describe Validators::ServiceTypeValidator do
-  class ServiceTypeMockModel
-    include ActiveModel::Validations
-    include Concerns::AdditionalValidations
-
-    attr_accessor :field
-    validates :field, "validators/service_type" => true
-  end
-
-  describe "#validate_each" do
-    it "should correctly validate fields" do
-      subject = ServiceTypeMockModel.new
-
-      subject.field = "oil-filter"
-      subject.validate
-      expect(subject.errors.to_hash).to eq({})
-
-      subject.field = "100"
-      subject.validate
-      expect(subject.errors.to_hash).to eq({field: ["must be a valid service type"]})
-    end
-  end
-end

@@ -134,14 +134,4 @@ module Validators
       value.blank? || TimestampValidator.parse(value, formats: options[:formats])
     end
   end
-
-  class ServiceTypeValidator < BaseValidator
-    def initialize(options)
-      super(options.reverse_merge(default_message: "must be a valid service type"))
-    end
-
-    def check_valid?(value)
-      value.blank? || Appointment::SERVICE_TYPES.key?(value)
-    end
-  end
 end
