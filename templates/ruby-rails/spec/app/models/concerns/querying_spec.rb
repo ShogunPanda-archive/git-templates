@@ -10,6 +10,11 @@ describe Concerns::Querying do
 
   class MockQueryingOtherModel < ApplicationRecord
     self.table_name = "models"
+    SECONDARY_KEY = :handle
+  end
+
+  class MockQueryingAnotherModel < ApplicationRecord
+    self.table_name = "models"
   end
 
   subject {
@@ -33,8 +38,8 @@ describe Concerns::Querying do
     end
 
     it "should fallback to a reasonable query" do
-      expect(MockQueryingOtherModel).to receive(:find_by!).with(handle: subject.handle).and_return(subject)
-      expect(MockQueryingOtherModel.find_with_any!(subject.handle).id).to eq(subject.id)
+      expect(MockQueryingAnotherModel).to receive(:find_by!).with(handle: subject.handle).and_return(subject)
+      expect(MockQueryingAnotherModel.find_with_any!(subject.handle).id).to eq(subject.id)
     end
 
     it "should raise an exception when nothing is found" do
