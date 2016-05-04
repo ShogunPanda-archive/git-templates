@@ -1,0 +1,8 @@
+/dist
+/tmp
+/node_modules
+/bower_components
+/.sass-cache
+/connect.lock
+npm-debug.log
+/.idea

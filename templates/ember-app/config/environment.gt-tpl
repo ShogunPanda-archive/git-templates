@@ -1,0 +1,40 @@
+/* eslint-env commonjs */
+
+"use strict"; // eslint-disable-line strict
+
+const localUrls = function(host, secure){
+  secure = secure ? "s" : "";
+  host = host.replace(/:\d+$/, "");
+
+  return `http${secure}://${host}:* ws${secure}://${host}:*`;
+};
+
+module.exports = function(environment){
+  let apiHost = "localhost";
+  let secure = true;
+
+  const ENV = { // eslint-disable-line quote-props
+    environment,
+    apiHost: `http${secure ? "s" : ""}://${apiHost}`,
+    modulePrefix: "{{name}}",
+    exportApplicationGlobal: true,
+    baseURL: "/",
+    locationType: "history",
+    contentSecurityPolicy: {
+      "connect-src": `'self' ${localUrls(apiHost, secure)}`,
+      "style-src": `'self' 'unsafe-inline' ${localUrls(apiHost, secure)}`,
+      "font-src": `'self' 'unsafe-inline' ${localUrls(apiHost, secure)}`,
+      "script-src": `'self' 'unsafe-eval' 'unsafe-inline' ${localUrls(apiHost, secure)}`,
+      "img-src": `'self' data: ${localUrls(apiHost, secure)}`
+    },
+    EmberENV: {
+      FEATURES: {}
+    },
+    APP: {}
+  };
+
+  if(environment === "production"){
+  }
+
+  return ENV;
+};
