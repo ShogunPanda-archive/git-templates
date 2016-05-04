@@ -1,0 +1,30 @@
+{
+  "name": "{{name}}",
+  "version": "0.0.1",
+  "description": "{{description}}",
+  "private": true,
+  "main": "main.js",
+  "files": [
+    "main.js",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "./node_modules/.bin/eslint main.js lib/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/{{githubUser}}/{{name}}"
+  },
+  "keywords": [],
+  "author": "{{author}} <{{authorEmail}}>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/{{githubUser}}/{{name}}/issues"
+  },
+  "homepage": "{{url}}",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "~2.4.0"
+  }
+}
