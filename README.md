@@ -6,7 +6,7 @@ GIT Templates for repositories.
 
 To run the utility, [Node.js](https://nodejs.org) version 5 or above is required. (no additional packages required).
 ```
-curl -s -L http://r.cowtech.it/git-template-setup | node - [TEMPLATE] [CONFIGURATION]
+curl -s -L http://r.cowtech.it/git-template-setup | node -- [TEMPLATE] [CONFIGURATION]
 ```
 
 Where:
@@ -16,7 +16,7 @@ Where:
     To see all the available templates, run: 
   
     ```  
-    curl -s -L http://r.cowtech.it/git-template-setup | node -l
+    curl -s -L http://r.cowtech.it/git-template-setup | node -- -l
     ``` 
 
 * `CONFIGURATION`: A path to JSON file with values for the following fields:  
