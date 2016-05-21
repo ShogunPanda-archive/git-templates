@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 "use strict";
 
 const fs = require("fs");
@@ -177,12 +178,11 @@ class GitTemplatesInstaller{
   }
 
   createFile(destination, contents, template, callback){
-    destination = destination.replace(this.fileNameRegex, (match) => this.configuration[RegExp.$2] || "");
-    destination = path.resolve(destination);
+    destination = path.resolve(this._compileTemplate(destination, this.fileNameRegex));
     const parent = path.dirname(destination);
 
     if(template)
-      contents = contents.replace(this.fileContentsRegex, (match) => this.configuration[RegExp.$2] || "");
+      contents = this._compileTemplate(contents, this.fileContentsRegex);
 
     childProcess.exec(`mkdir -p ${parent}`, mkdirError => {
       if(mkdirError)
@@ -256,6 +256,10 @@ class GitTemplatesInstaller{
           }
         );
     });
+  }
+
+  _compileTemplate(target, pattern){
+    return target.replace(pattern, (_u1, _u2, key) => this.configuration[key] || "");
   }
 }
 
