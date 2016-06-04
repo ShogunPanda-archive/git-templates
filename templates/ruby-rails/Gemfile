@@ -2,16 +2,12 @@ source "https://rubygems.org"
 
 # Server
 gem "rails", "~> 4.2"
-# gem "rails-api", "~> 0.4" # Enable this if you want to use Rails API
 gem "puma", "~> 3.2"
 
 # Data storages and queue systems
 
 # General
-gem "lazier", "~> 4.2"
-gem "jbuilder", "~> 2.4"
-gem "jwt", "~> 1.5"
-gem "mustache", "~> 1.0"
+gem "apes", "~> 1.0"
 
 # Testing
 group :test do
