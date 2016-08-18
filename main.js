@@ -83,6 +83,9 @@ class GitTemplatesInstaller{
 
     if(!this.url)
       this.configuration.url = `https://github.com/${this.configuration.githubUser}/${this.configuration.name}`;
+    
+    if(!this.docsUrl)
+      this.configuration.docsUrl = `https://${this.configuration.githubUser.toLowerCase()}.github.io/${this.configuration.name}`;
 
     this.fileNameRegex = new RegExp(`(__(${Object.keys(this.configuration).join("|")})__)`, "gm");
     this.fileContentsRegex = new RegExp(`(\\{\\{(${Object.keys(this.configuration).join("|")})\\}\\})`, "gm");

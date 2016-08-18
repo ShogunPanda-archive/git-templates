@@ -3,11 +3,19 @@
 [![Package Version](https://badge.fury.io/js/{{name}}.png)](http://badge.fury.io/js/{{name}})
 [![Dependency Status](https://gemnasium.com/{{githubUser}}/{{name}}.png?travis)](https://gemnasium.com/{{githubUser}}/{{name}})
 [![Build Status](https://secure.travis-ci.org/{{githubUser}}/{{name}}.png?branch=master)](http://travis-ci.org/{{githubUser}}/{{name}})
-[![Coverage Status](https://coveralls.io/repos/{{githubUser}}/{{name}}/badge.png)](https://coveralls.io/r/{{githubUser}}/{{name}})
+[![Coverage Status](https://coveralls.io/repos/github/{{githubUser}}/{{name}}/badge.svg?branch=master)](https://coveralls.io/github/{{githubUser}}/{{name}}?branch=master)
 
 {{description}}
 
 {{url}}
+
+## Supported implementations.
+
+Clavem.js supports and has been tested on [NodeJS](http://nodejs.org) 6.0+.
+
+## API Documentation
+
+The API documentation can be found [here]({{docsUrl}}).
 
 ## Contributing to {{name}}
 
