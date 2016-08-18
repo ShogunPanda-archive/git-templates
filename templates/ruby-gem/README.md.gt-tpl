@@ -9,6 +9,10 @@
 
 {{url}}
 
+## API Documentation
+
+The API documentation can be found [here]({{docsUrl}}).
+
 ## Contributing to {{name}}
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.

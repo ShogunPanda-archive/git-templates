@@ -10,6 +10,3 @@ script: bundle exec rake spec:ci
 gemfile: .travis-gemfile
 notifications:
   email: false
-addons:
-  code_climate:
-    repo_token:
