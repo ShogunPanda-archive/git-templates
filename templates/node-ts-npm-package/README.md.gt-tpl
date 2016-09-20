@@ -1,0 +1,37 @@
+# {{name}}
+
+[![Package Version](https://badge.fury.io/js/{{name}}.png)](http://badge.fury.io/js/{{name}})
+[![Dependency Status](https://gemnasium.com/{{githubUser}}/{{name}}.png?travis)](https://gemnasium.com/{{githubUser}}/{{name}})
+[![Build Status](https://secure.travis-ci.org/{{githubUser}}/{{name}}.png?branch=master)](http://travis-ci.org/{{githubUser}}/{{name}})
+[![Coverage Status](https://coveralls.io/repos/github/{{githubUser}}/{{name}}/badge.svg?branch=master)](https://coveralls.io/github/{{githubUser}}/{{name}}?branch=master)
+
+{{description}}
+
+{{url}}
+
+## Supported implementations.
+
+{{name}} is written in [TypeScript](https://typescriptlang.org).
+
+It can be used in TypeScript (using Typescript 2.0) or simply in plain Javacript.
+
+{{name}} supports and has been tested on [NodeJS](http://nodejs.org) 6.0+.
+
+## API Documentation
+
+The API documentation can be found [here]({{docsUrl}}).
+
+## Contributing to {{name}}
+
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
+* Fork the project.
+* Start a feature/bugfix branch.
+* Commit and push until you are happy with your contribution.
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+
+## Copyright
+
+Copyright (C) {{year}} and above {{author}} <{{authorEmail}}>.
+
+Licensed under the MIT license, which can be found at http://opensource.org/licenses/MIT.
