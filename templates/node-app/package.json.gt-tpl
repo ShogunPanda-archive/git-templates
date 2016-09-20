@@ -25,6 +25,6 @@
   "homepage": "{{url}}",
   "dependencies": {},
   "devDependencies": {
-    "eslint": "~2.4.0"
+    "eslint": "~3.5.0"
   }
 }
