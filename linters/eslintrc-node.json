@@ -246,7 +246,7 @@
     "prefer-spread": 2,
     "prefer-template": 2,
     "require-yield": 2,
-    "spread-spacing": [2, "never"],
+    "rest-spread-spacing": [2, "never"],
     "template-curly-spacing": [2, "never"],
     "yield-star-spacing": [2, "before"]
   }
