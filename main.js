@@ -111,7 +111,8 @@ class GitTemplatesInstaller{
   }
 
   verifyEmptyDirectory(){
-    return !fs.readdirSync(process.cwd()).map(p => path.resolve(p)).filter(p => p !== this.configFile && p !== ".idea" && p !== ".git").length;
+    const files = fs.readdirSync(process.cwd()).map(p => path.resolve(p));
+    return !files.filter(p => !(p === this.configFile || p.endsWith(".idea") || p.endsWith(".git"))).length;
   }
 
   perform(sha){
