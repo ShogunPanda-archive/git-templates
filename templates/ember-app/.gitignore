@@ -1,8 +1,10 @@
-/dist
-/tmp
-/node_modules
-/bower_components
+.idea/
+.nyc_output/
+node_modules/
+coverage/
+npm-debug.log
+dist/
+tmp/
+bower_components/
 /.sass-cache
 /connect.lock
-npm-debug.log
-/.idea
