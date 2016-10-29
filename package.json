@@ -30,7 +30,7 @@
   },
   "homepage": "https://sw.cowtech.it/git-templates",
   "dependencies": {
-    "fs-extra": "^0.30.0",
+    "fs-extra": "~0.30.0",
     "request": "~2.76.0",
     "request-promise": "~4.1.1"
   },
