@@ -12,28 +12,30 @@ const localUrls = function(host, secure){
 module.exports = function(environment){
   let apiHost = "localhost";
   let secure = true;
+  const cspSource = localUrls(apiHost, secure);
 
   const ENV = { // eslint-disable-line quote-props
-    environment,
-    apiHost: `http${secure ? "s" : ""}://${apiHost}`,
     modulePrefix: "{{name}}",
+    environment,
+    rootURL: "/",
+    locationType: "auto",
     exportApplicationGlobal: true,
-    baseURL: "/",
-    locationType: "history",
-    contentSecurityPolicy: {
-      "connect-src": `'self' ${localUrls(apiHost, secure)}`,
-      "style-src": `'self' 'unsafe-inline' ${localUrls(apiHost, secure)}`,
-      "font-src": `'self' 'unsafe-inline' ${localUrls(apiHost, secure)}`,
-      "script-src": `'self' 'unsafe-eval' 'unsafe-inline' ${localUrls(apiHost, secure)}`,
-      "img-src": `'self' data: ${localUrls(apiHost, secure)}`
-    },
+    apiHost: `http${secure ? "s" : ""}://${apiHost}`,
     EmberENV: {
       FEATURES: {}
     },
     APP: {}
+    contentSecurityPolicy: {
+      "connect-src": `'self' ${cspSource}`,
+      "style-src": `'self' 'unsafe-inline' ${cspSource}`,
+      "font-src": `'self' 'unsafe-inline' ${cspSource}`,
+      "script-src": `'self' 'unsafe-eval' 'unsafe-inline' ${cspSource}`,
+      "img-src": `'self' data: ${cspSource}`
+    },
   };
 
   if(environment === "production"){
+    // Environment specific settings here
   }
 
   return ENV;

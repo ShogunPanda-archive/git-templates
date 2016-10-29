@@ -23,6 +23,6 @@
   },
   "homepage": "https://sw.cowtech.it/git-templates",
   "devDependencies": {
-    "eslint": "~2.4.0"
+    "eslint": "~3.9.0"
   }
 }
