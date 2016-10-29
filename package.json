@@ -11,7 +11,8 @@
     "git-templates": "./main.js"
   },
   "scripts": {
-    "lint": "./node_modules/.bin/eslint main.js"
+    "lint": "./node_modules/.bin/eslint main.js",
+    "postpublish": "git push origin --tags && git push origin"
   },
   "repository": {
     "type": "git",
