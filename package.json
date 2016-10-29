@@ -1,6 +1,6 @@
 {
   "name": "git-templates",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "GIT Templates for repositories.",
   "main": "main.js",
   "files": [
@@ -18,7 +18,11 @@
     "type": "git",
     "url": "https://github.com/ShogunPanda/git-templates"
   },
-  "keywords": ["git", "template", "linter"],
+  "keywords": [
+    "git",
+    "template",
+    "linter"
+  ],
   "author": "Shogun <shogun@cowtech.it>",
   "license": "MIT",
   "bugs": {
