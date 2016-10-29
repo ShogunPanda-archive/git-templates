@@ -1,4 +1,0 @@
-#!/bin/sh
-curl -o /tmp/git-templates-setup -sSL https://raw.github.com/ShogunPanda/git-templates/master/main.js
-node /tmp/git-templates-setup $@
-rm /tmp/git-templates-setup
