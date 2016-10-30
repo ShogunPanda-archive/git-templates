@@ -170,10 +170,11 @@ const showLinter = function(configuration){
 };
 
 const createEntry = function(fullPath, content){
-  fs.mkdirsSync(content ? path.dirname(fullPath) : fullPath); // eslint-disable-line no-sync
+  const isFile = typeof content === "string";
+  fs.mkdirsSync(isFile ? path.dirname(fullPath) : fullPath); // eslint-disable-line no-sync
 
   // Write file content
-  if(content)
+  if(isFile)
     fs.writeFileSync(fullPath, content, {mode: 0o644}); // eslint-disable-line no-sync
 };
 
