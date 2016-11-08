@@ -1,4 +1,4 @@
-// Updated to ESLint 3.9.0
+// Updated to ESLint 3.9.1
 {
   "env": {
     "es6": true,
