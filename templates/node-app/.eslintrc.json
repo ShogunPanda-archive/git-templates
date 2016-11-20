@@ -45,7 +45,7 @@
     "array-callback-return": 2,
     "accessor-pairs": 2,
     "block-scoped-var": 2,
-    "class-methods-use-this": 2,
+    "class-methods-use-this": 0,
     "complexity": [2, 25],
     "consistent-return": 2,
     "curly": [2, "multi-or-nest"],
