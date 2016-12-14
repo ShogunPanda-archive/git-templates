@@ -2,21 +2,23 @@
   "name": "{{name}}",
   "version": "0.0.1",
   "description": "{{description}}",
-  "main": "main.js",
+  "main": "index.js",
   "files": [
-    "main.js",
+    "index.js",
     "lib",
     "README.md",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "postpublish": "git push origin --tags && git push origin",
     "test": "./node_modules/.bin/mocha",
-    "lint": "./node_modules/.bin/eslint main.js lib test",
-    "coverage": "./node_modules/.bin/nyc npm run test",
-    "travis-ci": "./node_modules/.bin/nyc --reporter=lcov npm run test",
-    "update-coveralls": "cat coverage/lcov.info | ./node_modules/.bin/coveralls",
-    "docs": "./node_modules/.bin/jsdoc -c .jsdoc.json -t ./node_modules/minami -R README.md -r"
+    "ci-test": "./node_modules/.bin/mocha -R dot",
+    "lint": "./node_modules/.bin/eslint index.js lib test",
+    "coverage": "./node_modules/.bin/nyc npm run ci-test",
+    "sanity": "npm run lint && npm run coverage && npm run docs",
+    "cleanup": "rm -rf .nyc_output coverage log",
+    "travis-ci": "./node_modules/.bin/nyc --reporter=text-lcov npm run ci-test | ./node_modules/coveralls/bin/coveralls.js",
+    "docs": "jsdoc -c .jsdoc.json",
+    "postpublish": "git push origin && git push origin -f --tags"
   },
   "repository": {
     "type": "git",
@@ -32,12 +34,17 @@
   "dependencies": {},
   "devDependencies": {
     "chai": "~3.5.0",
+    "chai-http": "~3.0.0",
+    "chai-moment": "~0.1.0",
     "coveralls": "~2.11.14",
-    "eslint": "~3.9.0",
-    "minami": "~1.1.1",
-    "nyc": "~8.3.0",
-    "jsdoc": "~3.4.1",
-    "mocha": "~3.1.1",
-    "sinon": "~1.17.6"
+    "eslint": "~3.9.1",
+    "jaguarjs-jsdoc": "^1.0.1",
+    "jsdoc": "^3.4.3",
+    "jsdoc-strip-async-await": "^0.1.0",
+    "mocha": "~3.2.0",
+    "nyc": "~10.0.0",
+    "sinon": "~1.17.4",
+    "sinon-as-promised": "~4.0.2",
+    "timekeeper": "~1.0.0"
   }
 }

@@ -30,11 +30,11 @@
   },
   "homepage": "https://sw.cowtech.it/git-templates",
   "dependencies": {
-    "fs-extra": "~0.30.0",
-    "request": "~2.76.0",
+    "fs-extra": "~1.0.0",
+    "request": "~2.79.0",
     "request-promise": "~4.1.1"
   },
   "devDependencies": {
-    "eslint": "~3.9.0"
+    "eslint": "~3.12.1"
   }
 }

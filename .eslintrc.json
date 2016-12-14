@@ -1,4 +1,4 @@
-// Updated to ESLint 3.9.1
+// Updated to ESLint 3.12.1
 {
   "env": {
     "es6": true,
@@ -90,6 +90,7 @@
     "no-proto": 2,
     "no-redeclare": 2,
     "no-return-assign": [2, "except-parens"],
+    "no-return-await": 2,
     "no-self-assign": 2,
     "no-script-url": 2,
     "no-self-compare": 2,
@@ -140,6 +141,7 @@
     "block-spacing": [2, "never"],
     "brace-style": [2, "1tbs"],
     "camelcase": [2, {"properties": "always"}],
+    "capitalized-comments": [2, "always"],
     "comma-spacing": [2, {"before": false, "after": true}],
     "comma-style": [2, "last"],
     "computed-property-spacing": [2, "never"],
@@ -228,6 +230,7 @@
     "arrow-spacing": [2, { "before": true, "after": true }],
     "constructor-super": 0,
     "generator-star-spacing": [2, {"before": true, "after": false}],
+    "no-await-in-loop": 2,
     "no-class-assign": 2,
     "no-confusing-arrow": 2,
     "no-const-assign": 2,
@@ -246,6 +249,7 @@
     "prefer-rest-params": 2,
     "prefer-spread": 2,
     "prefer-template": 2,
+    "require-await": 2,
     "require-yield": 2,
     "rest-spread-spacing": [2, "never"],
     "template-curly-spacing": [2, "never"],

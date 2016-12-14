@@ -1,5 +1,0 @@
-// --- Requires ---
-
-// --- Utility ---
-
-// --- Main function ---
