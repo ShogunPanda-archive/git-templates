@@ -7,7 +7,7 @@ GIT Templates for repositories.
 
 ## Usage
 
-To run the utility, [Node.js](https://nodejs.org) version 6 or above is required.
+To run the utility, [Node.js](https://nodejs.org) version **7** or above is required.
 
 Install the package (only needed once):
 
@@ -48,19 +48,3 @@ Where:
     This will default to the `.git-template.json` in the current folder.
     
 To use authenticated API calls, provide the GITHUB_AUTH variable in the form `$USER:$PASSWORD` or `$USER:$PERSONAL_ACCESS_TOKEN`.
-
-## Linters
-
-To download a linter file, simply execute:
-
-```bash
-git-templates -L [LINTER]
-```
-
-Where `LINTER`: Is the name of a linter template, like `eslintrc-ember.json`.
-
-To see all the available linters, run:
-
-```bash
-git-templates -L -l
-```

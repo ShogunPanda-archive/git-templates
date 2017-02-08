@@ -33,18 +33,19 @@
   "homepage": "{{url}}",
   "dependencies": {},
   "devDependencies": {
-    "chai": "~3.5.0",
-    "chai-http": "~3.0.0",
-    "chai-moment": "~0.1.0",
-    "coveralls": "~2.11.14",
-    "eslint": "~3.9.1",
-    "jaguarjs-jsdoc": "^1.0.1",
-    "jsdoc": "^3.4.3",
-    "jsdoc-strip-async-await": "^0.1.0",
-    "mocha": "~3.2.0",
-    "nyc": "~10.0.0",
-    "sinon": "~1.17.4",
-    "sinon-as-promised": "~4.0.2",
-    "timekeeper": "~1.0.0"
+    "chai": "~3.5",
+    "chai-http": "~3.0",
+    "chai-moment": "~0.1",
+    "coveralls": "~2.11",
+    "eslint": "~3.15",
+    "eslint-config-cowtech": "~1.0",
+    "jaguarjs-jsdoc": "~1.0",
+    "jsdoc": "~3.4",
+    "jsdoc-strip-async-await": "~0.1",
+    "mocha": "~3.2",
+    "nyc": "~10.0",
+    "sinon": "~1.17",
+    "sinon-as-promised": "~4.0",
+    "timekeeper": "~1.0"
   }
 }
