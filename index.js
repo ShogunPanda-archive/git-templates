@@ -182,7 +182,6 @@ const GitTemplates = {
     const entries = await GitTemplates.apiCall(configuration, "/git/trees/master?recursive=1");
     const matcher = new RegExp(`^${configuration.templatePrefix}${template}/(.+)`);
 
-    console.log(matcher);
     // Find templates
     return entries.tree.reduce((accu, e) => { // eslint-disable-line arrow-body-style
       if(e.type !== "tree" && e.path.match(matcher))

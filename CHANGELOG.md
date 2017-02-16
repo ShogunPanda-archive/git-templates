@@ -1,3 +1,7 @@
+### 2016-02-16 / 5.0.2
+
+* Removed debug line.
+
 ### 2016-02-16 / 5.0.1
 
 * Fix NPM package main file.
