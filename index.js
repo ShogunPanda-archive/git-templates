@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --harmony-async-await
 const cli = require("commander");
 const bluebird = require("bluebird");
 const fs = bluebird.promisifyAll(require("fs-extra"));
