@@ -1,3 +1,7 @@
+### 2017-06-28 / 5.0.4
+
+* Fixed README.
+
 ### 2017-06-28 / 5.0.3
 
 * Added deprecation notice.
