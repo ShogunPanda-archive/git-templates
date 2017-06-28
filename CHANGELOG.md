@@ -1,3 +1,7 @@
+### 2017-06-28 / 5.0.3
+
+* Added deprecation notice.
+
 ### 2016-02-16 / 5.0.2
 
 * Removed debug line.
