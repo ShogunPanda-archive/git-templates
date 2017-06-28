@@ -1,6 +1,6 @@
 {
   "name": "git-templates",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "GIT Templates for repositories.",
   "main": "index.js",
   "files": [
