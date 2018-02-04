@@ -1,9 +1,9 @@
 # {{name}}
 
-[![Package Version](https://badge.fury.io/js/{{name}}.png)](http://badge.fury.io/js/{{name}})
-[![Dependency Status](https://gemnasium.com/{{githubUser}}/{{name}}.png?travis)](https://gemnasium.com/{{githubUser}}/{{name}})
-[![Build Status](https://secure.travis-ci.org/{{githubUser}}/{{name}}.png?branch=master)](http://travis-ci.org/{{githubUser}}/{{name}})
-[![Coverage Status](https://coveralls.io/repos/github/{{githubUser}}/{{name}}/badge.svg?branch=master)](https://coveralls.io/github/{{githubUser}}/{{name}}?branch=master)
+[![Gem Version](https://img.shields.io/gem/v/{{name}}.svg)](https://rubygems.org/gems/{{name}})
+[![Dependency Status](https://img.shields.io/gemnasium/{{githubUser}}/{{name}}.svg)](https://gemnasium.com/{{githubUser}}/{{name}})
+[![Build Status](https://img.shields.io/travis/{{githubUser}}/{{name}}.svg)](http://travis-ci.org/{{githubUser}}/{{name}})
+[![Coverage Status](https://img.shields.io/coveralls/github/{{githubUser}}/{{name}}.svg)](https://coveralls.io/github/{{githubUser}}/{{name}})
 
 {{description}}
 
@@ -26,4 +26,4 @@ The API documentation can be found [here]({{docsUrl}}).
 
 Copyright (C) {{year}} and above {{author}} <{{authorEmail}}>.
 
-Licensed under the MIT license, which can be found at http://opensource.org/licenses/MIT.
+Licensed under the MIT license, which can be found at https://choosealicense.com/licenses/mit.
